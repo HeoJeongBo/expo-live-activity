@@ -16,6 +16,11 @@
     "test": "expo-module test",
     "prepare": "expo-module prepare",
     "prepublishOnly": "expo-module prepublishOnly",
+    "release": "release-it",
+    "release:patch": "release-it patch",
+    "release:minor": "release-it minor",
+    "release:major": "release-it major",
+    "release:dry": "release-it --dry-run",
     "expo-module": "expo-module",
     "open:ios": "xed example/ios",
     "open:android": "open -a \"Android Studio\" example/android"
@@ -39,7 +44,9 @@
     "@biomejs/biome": "^1.9.4",
     "expo-module-scripts": "^4.1.9",
     "expo": "~53.0.0",
-    "react-native": "0.79.1"
+    "react-native": "0.79.1",
+    "release-it": "^17.7.0",
+    "@release-it/conventional-changelog": "^8.0.2"
   },
   "peerDependencies": {
     "expo": "*",

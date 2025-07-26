@@ -239,6 +239,12 @@ bun run test
 # 배포 준비
 bun run prepare
 
+# Release-it을 사용한 배포
+bun run release:patch   # 패치 버전 배포
+bun run release:minor   # 마이너 버전 배포  
+bun run release:major   # 메이저 버전 배포
+bun run release:dry     # 배포 미리보기
+
 # iOS 프로젝트 열기
 bun run open:ios
 
@@ -256,16 +262,52 @@ bun run open:android
 ### 개발 의존성
 - **@types/react**: React TypeScript 타입
 - **@biomejs/biome**: 고성능 린터 및 포매터
+- **release-it**: 자동화된 배포 도구
+- **@release-it/conventional-changelog**: 자동 CHANGELOG 생성
 - **expo-module-scripts**: Expo 모듈 빌드 도구
 - **typescript**: TypeScript 컴파일러
 
 ## 🚀 배포
 
+### Release-it을 사용한 자동 배포
+
+```bash
+# 패치 버전 배포 (0.1.0 → 0.1.1)
+bun run release:patch
+
+# 마이너 버전 배포 (0.1.0 → 0.2.0)  
+bun run release:minor
+
+# 메이저 버전 배포 (0.1.0 → 1.0.0)
+bun run release:major
+
+# 대화형 배포 (버전 선택)
+bun run release
+
+# 배포 미리보기 (실제 배포하지 않음)
+bun run release:dry
+```
+
+### 배포 프로세스
+
+Release-it은 다음 작업을 자동으로 수행합니다:
+
+1. **코드 검사**: `bun run check:fix` 실행
+2. **빌드**: `bun run build` 실행  
+3. **테스트**: `bun run test` 실행
+4. **버전 업데이트**: package.json 버전 자동 증가
+5. **Git 커밋**: 변경사항 커밋 및 태그 생성
+6. **GitHub 릴리스**: 자동 릴리스 노트 생성
+7. **npm 배포**: npm 레지스트리에 패키지 배포
+8. **CHANGELOG**: 자동 변경 로그 생성
+
+### 수동 배포 (기존 방식)
+
 ```bash
 # 패키지 빌드 및 검증
 bun run prepublishOnly
 
-# npm에 배포 (npm 레지스트리 사용)
+# npm에 배포
 npm publish
 ```
 
