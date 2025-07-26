@@ -12,7 +12,8 @@
   },
   "npm": {
     "publish": true,
-    "publishPath": "."
+    "publishPath": ".",
+    "publishArgs": ["--access", "public"]
   },
   "hooks": {
     "before:init": ["bun run check:fix", "bun run build"],
