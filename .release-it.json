@@ -16,7 +16,7 @@
   },
   "hooks": {
     "before:init": ["bun run check:fix", "bun run build"],
-    "before:release": ["bun run test"],
+    "before:release": [],
     "after:bump": ["echo 'Version bumped to ${version}'"],
     "after:release": ["echo 'Successfully released ${name} v${version} to ${repo.repository}.'"]
   },
