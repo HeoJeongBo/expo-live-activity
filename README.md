@@ -42,7 +42,8 @@ expo-live-activity/
 
 ### 개발 환경 요구사항
 
-- Node.js 16+
+- **Bun** 1.0+ (패키지 매니저)
+- **Biome** (린팅 및 포맷팅)
 - Expo CLI
 - iOS 개발을 위한 Xcode
 - Android 개발을 위한 Android Studio
@@ -50,17 +51,20 @@ expo-live-activity/
 ### 모듈 빌드
 
 ```bash
-# 의존성 설치
-npm install
+# 의존성 설치 (Bun 사용)
+bun install
 
 # 모듈 빌드
-npm run build
+bun run build
 
-# 린트 검사
-npm run lint
+# 코드 린팅 및 포맷팅 (Biome 사용)
+bun run check        # 린팅 + 포맷팅 검사
+bun run check:fix    # 린팅 + 포맷팅 자동 수정
+bun run lint         # 린팅만 검사
+bun run format       # 포맷팅만 검사
 
 # 테스트 실행
-npm run test
+bun run test
 ```
 
 ### 예제 앱 실행
@@ -68,11 +72,11 @@ npm run test
 ```bash
 # iOS 시뮬레이터에서 실행
 cd example
-npm install
-npx expo run:ios
+bun install
+bunx expo run:ios
 
 # Android 에뮬레이터에서 실행
-npx expo run:android
+bunx expo run:android
 ```
 
 ## 📱 API 사용법
@@ -216,25 +220,30 @@ export default function App() {
 
 ```bash
 # 프로젝트 빌드
-npm run build
+bun run build
 
 # 프로젝트 정리
-npm run clean
+bun run clean
 
-# 코드 린팅
-npm run lint
+# 코드 린팅 및 포맷팅 (Biome)
+bun run check        # 전체 검사 (린트 + 포맷)
+bun run check:fix    # 전체 수정 (린트 + 포맷)
+bun run lint         # 린트만 검사
+bun run lint:fix     # 린트만 수정
+bun run format       # 포맷만 검사
+bun run format:fix   # 포맷만 수정
 
 # 테스트 실행
-npm run test
+bun run test
 
 # 배포 준비
-npm run prepare
+bun run prepare
 
 # iOS 프로젝트 열기
-npm run open:ios
+bun run open:ios
 
 # Android 프로젝트 열기
-npm run open:android
+bun run open:android
 ```
 
 ## 📦 의존성
@@ -246,6 +255,7 @@ npm run open:android
 
 ### 개발 의존성
 - **@types/react**: React TypeScript 타입
+- **@biomejs/biome**: 고성능 린터 및 포매터
 - **expo-module-scripts**: Expo 모듈 빌드 도구
 - **typescript**: TypeScript 컴파일러
 
@@ -253,9 +263,9 @@ npm run open:android
 
 ```bash
 # 패키지 빌드 및 검증
-npm run prepublishOnly
+bun run prepublishOnly
 
-# npm에 배포
+# npm에 배포 (npm 레지스트리 사용)
 npm publish
 ```
 
@@ -278,3 +288,12 @@ MIT License
 이 모듈은 현재 기본적인 Expo 모듈 구조를 제공하며, 실제 iOS Live Activity 기능은 아직 구현되지 않았습니다. WebView 기반의 예제 구현을 포함하고 있어 Expo 모듈 개발의 참고 자료로 활용할 수 있습니다.
 
 Live Activity 기능을 실제로 구현하려면 iOS의 ActivityKit 프레임워크를 사용하여 추가 개발이 필요합니다.
+
+## 🔧 기술 스택
+
+이 프로젝트는 다음 도구들을 사용합니다:
+
+- **[Bun](https://bun.sh/)**: 빠른 JavaScript 런타임 및 패키지 매니저
+- **[Biome](https://biomejs.dev/)**: 빠르고 현대적인 린터/포매터 (ESLint + Prettier 대체)
+- **[Expo Modules API](https://docs.expo.dev/modules/)**: 네이티브 모듈 개발 프레임워크
+- **TypeScript**: 정적 타입 검사

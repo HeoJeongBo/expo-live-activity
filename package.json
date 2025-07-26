@@ -7,7 +7,12 @@
   "scripts": {
     "build": "expo-module build",
     "clean": "expo-module clean",
-    "lint": "expo-module lint",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint . --write",
+    "format": "biome format .",
+    "format:fix": "biome format . --write",
+    "check": "biome check .",
+    "check:fix": "biome check . --write",
     "test": "expo-module test",
     "prepare": "expo-module prepare",
     "prepublishOnly": "expo-module prepublishOnly",
@@ -31,6 +36,7 @@
   "dependencies": {},
   "devDependencies": {
     "@types/react": "~19.0.0",
+    "@biomejs/biome": "^1.9.4",
     "expo-module-scripts": "^4.1.9",
     "expo": "~53.0.0",
     "react-native": "0.79.1"
