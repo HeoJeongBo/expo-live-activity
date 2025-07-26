@@ -2,4 +2,4 @@
 // and on native platforms to ExpoLiveActivityModule.ts
 export { default } from './ExpoLiveActivityModule';
 export { default as ExpoLiveActivityView } from './ExpoLiveActivityView';
-export * from  './ExpoLiveActivity.types';
+export * from './ExpoLiveActivity.types';

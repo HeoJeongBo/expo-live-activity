@@ -1,6 +1,6 @@
 import { NativeModule, requireNativeModule } from 'expo';
 
-import { ExpoLiveActivityModuleEvents } from './ExpoLiveActivity.types';
+import type { ExpoLiveActivityModuleEvents } from './ExpoLiveActivity.types';
 
 declare class ExpoLiveActivityModule extends NativeModule<ExpoLiveActivityModuleEvents> {
   PI: number;

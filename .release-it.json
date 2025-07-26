@@ -15,19 +15,10 @@
     "publishPath": "."
   },
   "hooks": {
-    "before:init": [
-      "bun run check:fix",
-      "bun run build"
-    ],
-    "before:release": [
-      "bun run test"
-    ],
-    "after:bump": [
-      "echo 'Version bumped to ${version}'"
-    ],
-    "after:release": [
-      "echo 'Successfully released ${name} v${version} to ${repo.repository}.'"
-    ]
+    "before:init": ["bun run check:fix", "bun run build"],
+    "before:release": ["bun run test"],
+    "after:bump": ["echo 'Version bumped to ${version}'"],
+    "after:release": ["echo 'Successfully released ${name} v${version} to ${repo.repository}.'"]
   },
   "plugins": {
     "@release-it/conventional-changelog": {

@@ -1,7 +1,7 @@
 import { requireNativeView } from 'expo';
-import * as React from 'react';
+import type * as React from 'react';
 
-import { ExpoLiveActivityViewProps } from './ExpoLiveActivity.types';
+import type { ExpoLiveActivityViewProps } from './ExpoLiveActivity.types';
 
 const NativeView: React.ComponentType<ExpoLiveActivityViewProps> =
   requireNativeView('ExpoLiveActivity');

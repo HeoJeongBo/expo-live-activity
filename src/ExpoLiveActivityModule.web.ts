@@ -1,6 +1,6 @@
-import { registerWebModule, NativeModule } from 'expo';
+import { NativeModule, registerWebModule } from 'expo';
 
-import { ExpoLiveActivityModuleEvents } from './ExpoLiveActivity.types';
+import type { ExpoLiveActivityModuleEvents } from './ExpoLiveActivity.types';
 
 class ExpoLiveActivityModule extends NativeModule<ExpoLiveActivityModuleEvents> {
   PI = Math.PI;

@@ -1,5 +1,5 @@
 const createConfigAsync = require('@expo/webpack-config');
-const path = require('path');
+const path = require('node:path');
 
 module.exports = async (env, argv) => {
   const config = await createConfigAsync(
