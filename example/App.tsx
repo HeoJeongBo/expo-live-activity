@@ -64,7 +64,7 @@ export default function App() {
 
     const audioSubscription = addAudioRecordingListener((event: AudioRecordingEvent) => {
       console.log('Audio Recording Event:', event);
-      
+
       switch (event.type) {
         case 'started':
           setIsRecording(true);
@@ -86,7 +86,7 @@ export default function App() {
           setRecordingDuration(0);
           if (event.fileInfo) {
             Alert.alert(
-              'Recording Completed', 
+              'Recording Completed',
               `녹음 완료!\n파일: ${event.fileInfo.uri}\n크기: ${(event.fileInfo.size / 1024 / 1024).toFixed(2)}MB\n시간: ${Math.floor(event.fileInfo.duration / 60)}:${(event.fileInfo.duration % 60).toFixed(0).padStart(2, '0')}`
             );
           }
@@ -357,24 +357,19 @@ export default function App() {
               <View style={styles.audioLevelContainer}>
                 <Text style={styles.audioLevelLabel}>음성 레벨:</Text>
                 <View style={styles.audioLevelBar}>
-                  <View 
-                    style={[
-                      styles.audioLevelFill, 
-                      { width: `${audioLevel * 100}%` }
-                    ]} 
-                  />
+                  <View style={[styles.audioLevelFill, { width: `${audioLevel * 100}%` }]} />
                 </View>
                 <Text style={styles.audioLevelValue}>{Math.round(audioLevel * 100)}%</Text>
               </View>
             </View>
           )}
-          
+
           <View style={styles.buttonContainer}>
             <Button
-              title={isRecording ? "🛑 녹음 중지" : "🎙️ 녹음 시작"}
+              title={isRecording ? '🛑 녹음 중지' : '🎙️ 녹음 시작'}
               onPress={isRecording ? handleStopAudioRecording : handleStartAudioRecording}
               disabled={!isSupported}
-              color={isRecording ? "#ff6b6b" : "#4CAF50"}
+              color={isRecording ? '#ff6b6b' : '#4CAF50'}
             />
           </View>
         </Group>

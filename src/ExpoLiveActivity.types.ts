@@ -25,7 +25,13 @@ export interface LiveActivityConfig {
 /**
  * Activity 타입 (확장 가능)
  */
-export type ActivityType = 'foodDelivery' | 'rideshare' | 'workout' | 'timer' | 'audioRecording' | 'custom';
+export type ActivityType =
+  | 'foodDelivery'
+  | 'rideshare'
+  | 'workout'
+  | 'timer'
+  | 'audioRecording'
+  | 'custom';
 
 /**
  * Activity 우선순위
@@ -433,9 +439,9 @@ export interface AudioRecordingData {
 /**
  * 오디오 녹음 상태
  */
-export type AudioRecordingStatus = 
+export type AudioRecordingStatus =
   | 'preparing'
-  | 'recording' 
+  | 'recording'
   | 'paused'
   | 'stopped'
   | 'completed'
