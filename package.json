@@ -16,7 +16,7 @@
     "check:fix": "biome check . --write",
     "test": "expo-module test",
     "pre-commit": "bun run typecheck && bun run check",
-    "prepare": "husky",
+    "prepare": "bunx husky",
     "prepublishOnly": "expo-module prepublishOnly",
     "release": "release-it",
     "release:patch": "release-it patch",
