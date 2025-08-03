@@ -1,17 +1,35 @@
 # Expo Live Activity
 
-Expo Live Activity는 iOS Live Activity 기능을 Expo 앱에서 사용할 수 있도록 하는 네이티브 모듈입니다.
+iOS Live Activity 및 Android Live Activity 대안 기능을 Expo 앱에서 사용할 수 있도록 하는 크로스 플랫폼 네이티브 모듈입니다.
 
 ## 📋 프로젝트 개요
 
-이 프로젝트는 iOS의 Live Activity 기능을 React Native/Expo 앱에서 사용할 수 있도록 하는 Expo 모듈입니다. 현재는 기본적인 모듈 구조와 WebView 기반의 뷰 컴포넌트를 제공합니다.
+이 프로젝트는 **실시간 상태 업데이트가 필요한 앱**을 위한 크로스 플랫폼 Live Activity 솔루션을 제공합니다. iOS의 ActivityKit과 Android의 Ongoing Notifications를 통합하여 일관된 개발자 경험을 제공합니다.
 
-### 주요 기능
+### 🎯 현재 상태 및 목표
 
-- **네이티브 모듈**: iOS Swift로 구현된 네이티브 모듈
-- **WebView 컴포넌트**: URL을 로드할 수 있는 네이티브 뷰 컴포넌트
-- **이벤트 시스템**: JavaScript와 네이티브 간 이벤트 통신
-- **크로스 플랫폼 지원**: iOS, Android, Web 플랫폼 지원
+**현재**: Expo 네이티브 모듈 기본 프로젝트 (스캐폴딩 단계)  
+**목표**: 완전한 Live Activity 크로스 플랫폼 구현
+
+### 주요 기능 (계획)
+
+#### iOS - ActivityKit 기반
+- **Live Activity**: iOS 16+ ActivityKit 완전 활용
+- **Dynamic Island**: iPhone 14 Pro+ Dynamic Island 지원
+- **Push Updates**: 원격 푸시 기반 실시간 업데이트
+- **Lock Screen Widget**: 잠금 화면 라이브 위젯
+
+#### Android - Ongoing Notifications 기반  
+- **Persistent Notifications**: 지속적인 알림 표시
+- **Rich Notifications**: 커스텀 레이아웃 및 액션 버튼
+- **Foreground Service**: 백그라운드 상태 유지
+- **Notification Channels**: 안드로이드 O+ 채널 관리
+
+#### 공통 기능
+- **Unified API**: 플랫폼 차이를 추상화한 통합 API
+- **TypeScript Support**: 완전한 타입 안전성
+- **Real-time Sync**: 실시간 상태 동기화
+- **Clean Architecture**: 확장 가능한 아키텍처
 
 ## 🏗️ 프로젝트 구조
 
@@ -79,104 +97,416 @@ bunx expo run:ios
 bunx expo run:android
 ```
 
-## 📱 API 사용법
+## 📱 API 사용법 (목표 설계)
 
 ### 모듈 임포트
 
 ```typescript
-import ExpoLiveActivity, { ExpoLiveActivityView } from 'expo-live-activity';
+import ExpoLiveActivity from 'expo-live-activity';
 ```
 
-### 기본 함수 사용
+### Live Activity 생명주기 관리
 
 ```typescript
-// 상수 접근
-console.log(ExpoLiveActivity.PI); // 3.141592653589793
+// Live Activity 시작
+const activity = await ExpoLiveActivity.startActivity({
+  id: 'food-delivery-123',
+  type: 'foodDelivery',
+  title: '음식 배달',
+  content: {
+    restaurant: '맛있는 식당',
+    status: '주문 접수',
+    estimatedTime: 25,
+    orderItems: ['김치찌개', '공기밥']
+  },
+  actions: [
+    { id: 'cancel', title: '주문 취소', destructive: true },
+    { id: 'call', title: '매장 전화', icon: 'phone' }
+  ],
+  expirationDate: new Date(Date.now() + 60 * 60 * 1000) // 1시간
+});
 
-// 동기 함수 호출
-const greeting = ExpoLiveActivity.hello();
-console.log(greeting); // "Hello world! 👋"
+// Live Activity 업데이트
+await ExpoLiveActivity.updateActivity('food-delivery-123', {
+  content: {
+    status: '조리 중',
+    estimatedTime: 15
+  }
+});
 
-// 비동기 함수 호출
-await ExpoLiveActivity.setValueAsync('Hello from JavaScript!');
+// Live Activity 종료
+await ExpoLiveActivity.endActivity('food-delivery-123', {
+  finalContent: {
+    status: '배달 완료',
+    message: '맛있게 드세요!'
+  }
+});
 ```
 
-### 이벤트 리스닝
+### 실시간 이벤트 처리
 
 ```typescript
 import { useEvent } from 'expo';
 
-function MyComponent() {
-  const onChangePayload = useEvent(ExpoLiveActivity, 'onChange');
+function DeliveryTracker() {
+  // Activity 상태 변경 이벤트
+  const activityUpdate = useEvent(ExpoLiveActivity, 'onActivityUpdate');
+  
+  // 사용자 액션 이벤트 (버튼 탭 등)
+  const userAction = useEvent(ExpoLiveActivity, 'onUserAction');
+  
+  useEffect(() => {
+    if (userAction?.actionId === 'cancel') {
+      handleOrderCancel();
+    }
+  }, [userAction]);
   
   return (
-    <Text>{onChangePayload?.value}</Text>
+    <View>
+      <Text>주문 상태: {activityUpdate?.content?.status}</Text>
+      <Text>예상 시간: {activityUpdate?.content?.estimatedTime}분</Text>
+    </View>
   );
 }
 ```
 
-### 네이티브 뷰 컴포넌트 사용
+### 플랫폼별 고급 기능
 
 ```typescript
-<ExpoLiveActivityView
-  url="https://www.example.com"
-  onLoad={({ nativeEvent: { url } }) => {
-    console.log(`페이지 로드됨: ${url}`);
-  }}
-  style={{
-    flex: 1,
-    height: 200,
-  }}
-/>
+// iOS Dynamic Island 커스터마이징
+await ExpoLiveActivity.updateDynamicIsland('food-delivery-123', {
+  compactLeading: { text: '🍕' },
+  compactTrailing: { text: '15분' },
+  minimal: { text: '🍕' }
+});
+
+// Android 알림 채널 설정  
+await ExpoLiveActivity.configureNotificationChannel({
+  channelId: 'food-delivery',
+  name: '음식 배달',
+  importance: 'high',
+  showBadge: true,
+  vibration: true
+});
 ```
 
-## 🔍 타입 정의
+## 🔍 타입 정의 (목표 설계)
 
-### 주요 타입들
+### Core Types
 
 ```typescript
-// 이벤트 페이로드 타입
-export type OnLoadEventPayload = {
-  url: string;
-};
+// Live Activity 설정
+export interface LiveActivityConfig {
+  id: string;
+  type: ActivityType;
+  title: string;
+  content: ActivityContent;
+  actions?: ActivityAction[];
+  expirationDate?: Date;
+  priority?: 'low' | 'normal' | 'high';
+}
 
-export type ChangeEventPayload = {
-  value: string;
-};
+// Activity 콘텐츠
+export interface ActivityContent {
+  [key: string]: any;
+  status?: string;
+  progress?: number;
+  message?: string;
+}
 
-// 모듈 이벤트 타입
-export type ExpoLiveActivityModuleEvents = {
-  onChange: (params: ChangeEventPayload) => void;
-};
+// Activity 액션 (버튼)
+export interface ActivityAction {
+  id: string;
+  title: string;
+  icon?: string;
+  destructive?: boolean;
+  deepLink?: string;
+}
 
-// 뷰 컴포넌트 Props 타입
-export type ExpoLiveActivityViewProps = {
-  url: string;
-  onLoad: (event: { nativeEvent: OnLoadEventPayload }) => void;
-  style?: StyleProp<ViewStyle>;
-};
+// Activity 타입 (확장 가능)
+export type ActivityType = 
+  | 'foodDelivery' 
+  | 'rideshare' 
+  | 'workout' 
+  | 'timer'
+  | 'custom';
 ```
 
-## 🏗️ 아키텍처
+### Platform-Specific Types
 
-### iOS 네이티브 구현
+```typescript
+// iOS Dynamic Island
+export interface DynamicIslandContent {
+  compactLeading?: DynamicIslandElement;
+  compactTrailing?: DynamicIslandElement;
+  minimal?: DynamicIslandElement;
+  expanded?: {
+    content: React.ComponentType;
+    height?: number;
+  };
+}
 
-- **ExpoLiveActivityModule.swift**: 메인 모듈 클래스
-  - 상수 정의 (`PI`)
-  - 동기 함수 (`hello`)
-  - 비동기 함수 (`setValueAsync`)
-  - 이벤트 발송 (`onChange`)
+// Android Notification  
+export interface AndroidNotificationConfig {
+  channelId: string;
+  name: string;
+  importance: 'low' | 'normal' | 'high' | 'max';
+  showBadge?: boolean;
+  vibration?: boolean;
+  sound?: string;
+  customLayout?: string; // Custom notification layout
+}
+```
 
-- **ExpoLiveActivityView.swift**: 네이티브 뷰 컴포넌트
-  - WKWebView 기반 구현
-  - URL 로딩 기능
-  - 로드 완료 이벤트 발송
+### Event Types
 
-### JavaScript 레이어
+```typescript
+// 모듈 이벤트
+export interface LiveActivityEvents {
+  onActivityUpdate: (event: ActivityUpdateEvent) => void;
+  onUserAction: (event: UserActionEvent) => void;
+  onActivityEnd: (event: ActivityEndEvent) => void;
+  onError: (event: ErrorEvent) => void;
+}
 
-- **ExpoLiveActivityModule.ts**: 네이티브 모듈 인터페이스
-- **ExpoLiveActivityView.tsx**: React 컴포넌트 래퍼
-- **ExpoLiveActivity.types.ts**: TypeScript 타입 정의
+// 이벤트 페이로드
+export interface ActivityUpdateEvent {
+  activityId: string;
+  content: ActivityContent;
+  timestamp: Date;
+}
+
+export interface UserActionEvent {
+  activityId: string;
+  actionId: string;
+  timestamp: Date;
+}
+```
+
+## 🏗️ 아키텍처 설계
+
+### 플랫폼별 구현 전략
+
+#### iOS 구현 - ActivityKit 기반
+
+**목표 구조:**
+```
+ios/
+├── Core/
+│   ├── ActivityKit/
+│   │   ├── LiveActivityManager.swift      # ActivityKit 관리자
+│   │   ├── ActivityAttributesFactory.swift # Activity 속성 팩토리
+│   │   └── DynamicIslandProvider.swift    # Dynamic Island 제공자
+│   ├── Models/
+│   │   ├── FoodDeliveryActivity.swift     # 음식 배달 Activity
+│   │   ├── WorkoutActivity.swift          # 운동 Activity
+│   │   └── CustomActivity.swift           # 커스텀 Activity
+│   └── Services/
+│       ├── PushNotificationService.swift # Push 알림 서비스
+│       └── ActivityUpdateService.swift   # Activity 업데이트 서비스
+└── ExpoLiveActivityModule.swift           # Expo 모듈 진입점
+```
+
+**핵심 구현:**
+```swift
+import ActivityKit
+
+@available(iOS 16.1, *)
+class LiveActivityManager {
+    func startActivity<T: ActivityAttributes>(
+        attributes: T,
+        contentState: T.ContentState
+    ) async throws -> Activity<T> {
+        return try Activity.request(
+            attributes: attributes,
+            contentState: contentState,
+            pushType: .token
+        )
+    }
+}
+```
+
+#### Android 구현 - Ongoing Notifications + Foreground Service
+
+**구현 전략:**
+1. **Persistent Notifications (지속적 알림)**
+   - `NotificationCompat.Builder`로 리치 알림 생성
+   - Custom RemoteViews로 iOS Live Activity와 유사한 UI
+   - Action buttons으로 사용자 상호작용 지원
+
+2. **Foreground Service (포그라운드 서비스)**  
+   - 백그라운드에서 앱 종료되어도 알림 유지
+   - Real-time 업데이트 가능
+   - 시스템에서 강제 종료하기 어려움
+
+**목표 구조:**
+```
+android/
+├── src/main/java/expo/modules/liveactivity/
+│   ├── core/
+│   │   ├── LiveActivityManager.kt          # 안드로이드 Live Activity 관리자
+│   │   ├── NotificationBuilder.kt          # 커스텀 알림 빌더
+│   │   └── ForegroundService.kt           # 포그라운드 서비스
+│   ├── models/
+│   │   ├── ActivityConfig.kt              # Activity 설정 모델
+│   │   └── NotificationLayout.kt          # 알림 레이아웃 모델
+│   ├── services/
+│   │   ├── LiveActivityService.kt         # Live Activity 서비스
+│   │   └── NotificationUpdateService.kt   # 알림 업데이트 서비스
+│   └── ExpoLiveActivityModule.kt          # Expo 모듈 진입점
+```
+
+**Android 핵심 구현:**
+```kotlin
+class LiveActivityManager(private val context: Context) {
+    
+    fun startActivity(config: ActivityConfig): String {
+        val notificationId = generateId()
+        
+        // 1. 포그라운드 서비스 시작
+        val serviceIntent = Intent(context, LiveActivityService::class.java).apply {
+            putExtra("config", config)
+            putExtra("notificationId", notificationId)
+        }
+        context.startForegroundService(serviceIntent)
+        
+        // 2. 지속적 알림 생성
+        createPersistentNotification(config, notificationId)
+        
+        return config.id
+    }
+    
+    private fun createPersistentNotification(config: ActivityConfig, id: Int) {
+        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_activity)
+            .setContentTitle(config.title)
+            .setCustomContentView(createCustomLayout(config))
+            .setOngoing(true) // 사용자가 스와이프로 제거 불가
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .addActions(config.actions) // 액션 버튼 추가
+            .build()
+            
+        NotificationManagerCompat.from(context).notify(id, notification)
+    }
+}
+```
+
+#### 플랫폼 추상화 레이어
+
+**통합 API 설계:**
+```typescript
+// 플랫폼 차이를 숨기는 추상화
+class LiveActivityAdapter {
+  
+  async startActivity(config: LiveActivityConfig): Promise<Activity> {
+    if (Platform.OS === 'ios') {
+      return await this.iosActivityManager.start(config);
+    } else if (Platform.OS === 'android') {
+      return await this.androidActivityManager.start(config);
+    }
+    throw new Error('Platform not supported');
+  }
+  
+  async updateActivity(id: string, content: ActivityContent): Promise<void> {
+    if (Platform.OS === 'ios') {
+      await this.iosActivityManager.update(id, content);
+    } else if (Platform.OS === 'android') {
+      await this.androidActivityManager.updateNotification(id, content);
+    }
+  }
+}
+```
+
+### Android Live Activity 모범 사례
+
+#### 1. 알림 채널 전략
+```kotlin
+// 중요도별 알림 채널 생성
+fun createNotificationChannels() {
+    val channels = listOf(
+        NotificationChannel("delivery_high", "배달 알림", NotificationManager.IMPORTANCE_HIGH),
+        NotificationChannel("workout_normal", "운동 알림", NotificationManager.IMPORTANCE_DEFAULT),
+        NotificationChannel("timer_max", "타이머 알림", NotificationManager.IMPORTANCE_MAX)
+    )
+    
+    val manager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    channels.forEach { manager.createNotificationChannel(it) }
+}
+```
+
+#### 2. 커스텀 알림 레이아웃
+```xml
+<!-- custom_activity_layout.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="16dp">
+    
+    <!-- iOS Live Activity와 유사한 UI -->
+    <ImageView
+        android:id="@+id/activity_icon"
+        android:layout_width="48dp"
+        android:layout_height="48dp" />
+        
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        
+        <TextView
+            android:id="@+id/activity_title"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+            
+        <TextView
+            android:id="@+id/activity_status"
+            android:textSize="14sp" />
+            
+        <ProgressBar
+            android:id="@+id/activity_progress"
+            style="?android:attr/progressBarStyleHorizontal" />
+            
+    </LinearLayout>
+    
+</LinearLayout>
+```
+
+#### 3. 백그라운드 업데이트 최적화
+```kotlin
+class LiveActivityService : Service() {
+    
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val config = intent?.getParcelableExtra<ActivityConfig>("config")
+        
+        // 포그라운드 서비스로 실행
+        startForeground(NOTIFICATION_ID, createNotification(config))
+        
+        // 실시간 업데이트를 위한 WebSocket/SSE 연결
+        connectToRealTimeUpdates(config?.id)
+        
+        return START_STICKY // 시스템이 서비스를 재시작하도록 
+    }
+}
+```
+
+### Cross-Platform 개발 고려사항
+
+#### API 일관성 유지
+- iOS ActivityKit과 Android Notification의 차이점을 추상화
+- 공통 데이터 모델 사용으로 플랫폼별 변환 최소화
+- 플랫폼별 제약사항을 명확히 문서화
+
+#### 성능 최적화
+- **iOS**: ActivityKit의 업데이트 빈도 제한 고려
+- **Android**: 배터리 최적화 및 Doze 모드 대응
+- **공통**: 불필요한 업데이트 방지를 위한 디바운싱
+
+#### 사용자 경험 통일
+- 플랫폼별 네이티브 UX 패턴 준수
+- 동일한 정보를 플랫폼에 맞는 형태로 표시
+- 액션 버튼의 일관된 동작 보장
 
 ## 🧪 예제 코드
 
