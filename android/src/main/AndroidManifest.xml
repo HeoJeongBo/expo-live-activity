@@ -1,2 +1,21 @@
-<manifest>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Required permissions for notifications -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    
+    <application>
+        <!-- Notification Action Receiver -->
+        <receiver 
+            android:name="expo.modules.liveactivity.infrastructure.notifications.NotificationActionReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="expo.liveactivity.ACTION_BUTTON_CLICKED" />
+            </intent-filter>
+        </receiver>
+    </application>
+    
 </manifest>

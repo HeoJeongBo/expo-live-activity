@@ -102,7 +102,7 @@ export async function getActivity(activityId: string): Promise<LiveActivityInsta
 // MARK: - Dynamic Island
 
 /**
- * Dynamic Island 업데이트
+ * Dynamic Island 업데이트 (iOS 전용)
  * @param activityId Activity ID
  * @param content Dynamic Island 콘텐츠
  * @returns 성공 여부
@@ -111,22 +111,30 @@ export async function updateDynamicIsland(
   activityId: string,
   content: DynamicIslandContent
 ): Promise<boolean> {
+  if (!isDynamicIslandSupported) {
+    console.warn('Dynamic Island is not supported on this platform');
+    return false;
+  }
   return await ExpoLiveActivityModule.updateDynamicIsland(activityId, content);
 }
 
 // MARK: - Push Notifications
 
 /**
- * Push 토큰 등록
+ * Push 토큰 등록 (iOS 전용)
  * @param token APNS 토큰
  * @returns 성공 여부
  */
 export async function registerPushToken(token: string): Promise<boolean> {
-  return await ExpoLiveActivityModule.registerPushToken(token);
+  if (ExpoLiveActivityModule.registerPushToken) {
+    return await ExpoLiveActivityModule.registerPushToken(token);
+  }
+  console.warn('Push token registration is not supported on this platform');
+  return false;
 }
 
 /**
- * 원격 업데이트 요청
+ * 원격 업데이트 요청 (iOS 전용)
  * @param activityId Activity ID
  * @param content 업데이트할 콘텐츠
  * @param pushToken 대상 Push 토큰
@@ -137,7 +145,13 @@ export async function requestRemoteUpdate(
   content: ActivityContent,
   pushToken: string
 ): Promise<boolean> {
-  return await ExpoLiveActivityModule.requestRemoteUpdate(activityId, content, pushToken);
+  if (ExpoLiveActivityModule.requestRemoteUpdate) {
+    return await ExpoLiveActivityModule.requestRemoteUpdate(activityId, content, pushToken);
+  }
+  console.warn(
+    'Remote update via push is not supported on this platform. Use updateActivity instead.'
+  );
+  return false;
 }
 
 /**
@@ -145,7 +159,10 @@ export async function requestRemoteUpdate(
  * @returns Push 권한 상태
  */
 export async function getPushAuthorizationStatus(): Promise<PushAuthorizationStatus> {
-  return await ExpoLiveActivityModule.getPushAuthorizationStatus();
+  if (ExpoLiveActivityModule.getPushAuthorizationStatus) {
+    return await ExpoLiveActivityModule.getPushAuthorizationStatus();
+  }
+  return 'notDetermined';
 }
 
 // MARK: - Validation
