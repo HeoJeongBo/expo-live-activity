@@ -25,7 +25,7 @@ export interface LiveActivityConfig {
 /**
  * Activity 타입 (확장 가능)
  */
-export type ActivityType = 'foodDelivery' | 'rideshare' | 'workout' | 'timer' | 'custom';
+export type ActivityType = 'foodDelivery' | 'rideshare' | 'workout' | 'timer' | 'audioRecording' | 'custom';
 
 /**
  * Activity 우선순위
@@ -208,6 +208,8 @@ export interface ExpoLiveActivityModuleEvents {
   onActivityEnd: EventHandler;
   /** 에러 이벤트 */
   onError: EventHandler;
+  /** 오디오 녹음 이벤트 */
+  onAudioRecordingUpdate: EventHandler;
   /** 레거시 이벤트 (하위 호환성) */
   onChange: EventHandler;
   /** 인덱스 시그니처 */
@@ -406,6 +408,82 @@ export interface TimerData {
   totalTime: number;
   /** 실행 여부 */
   isRunning: boolean;
+}
+
+/**
+ * 오디오 녹음 템플릿 데이터
+ */
+export interface AudioRecordingData {
+  /** 녹음 세션 ID */
+  sessionId: string;
+  /** 녹음 이름/제목 */
+  title: string;
+  /** 녹음 지속 시간 (초) */
+  duration: number;
+  /** 녹음 상태 */
+  status: AudioRecordingStatus;
+  /** 오디오 품질 */
+  quality?: AudioQuality;
+  /** 파일 경로 */
+  filePath?: string;
+  /** 파일 크기 (bytes) */
+  fileSize?: number;
+}
+
+/**
+ * 오디오 녹음 상태
+ */
+export type AudioRecordingStatus = 
+  | 'preparing'
+  | 'recording' 
+  | 'paused'
+  | 'stopped'
+  | 'completed'
+  | 'error';
+
+/**
+ * 오디오 품질
+ */
+export type AudioQuality = 'low' | 'medium' | 'high';
+
+/**
+ * 오디오 녹음 설정
+ */
+export interface AudioRecordingConfig {
+  /** 녹음 세션 ID */
+  sessionId: string;
+  /** 녹음 제목 */
+  title: string;
+  /** 오디오 품질 */
+  quality: AudioQuality;
+  /** 최대 녹음 시간 (초) */
+  maxDuration?: number;
+  /** 백그라운드 녹음 허용 */
+  allowsBackgroundRecording: boolean;
+  /** Live Activity 표시 여부 */
+  showLiveActivity: boolean;
+}
+
+/**
+ * 오디오 녹음 이벤트
+ */
+export interface AudioRecordingEvent {
+  /** 세션 ID */
+  sessionId: string;
+  /** 이벤트 타입 */
+  type: 'started' | 'paused' | 'resumed' | 'stopped' | 'completed' | 'error';
+  /** 녹음 지속 시간 */
+  duration: number;
+  /** 오디오 레벨 (0.0 ~ 1.0) */
+  audioLevel?: number;
+  /** 에러 메시지 (error 타입일 때) */
+  error?: string;
+  /** 파일 정보 (completed 타입일 때) */
+  fileInfo?: {
+    uri: string;
+    size: number;
+    duration: number;
+  };
 }
 
 // MARK: - Legacy Types (Backward Compatibility)

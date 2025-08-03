@@ -8,6 +8,7 @@ import type {
   ActivityEndRequest,
   ActivityUpdateEvent,
   ActivityUpdateRequest,
+  AudioRecordingEvent,
   DynamicIslandContent,
   DynamicIslandUpdateRequest,
   ErrorEvent,
@@ -206,6 +207,19 @@ export function addErrorListener(listener: (event: ErrorEvent) => void): Subscri
   });
 }
 
+/**
+ * 오디오 녹음 이벤트 리스너 추가
+ * @param listener 이벤트 리스너
+ * @returns 구독 객체
+ */
+export function addAudioRecordingListener(
+  listener: (event: AudioRecordingEvent) => void
+): Subscription {
+  return ExpoLiveActivityModule.addListener('onAudioRecordingUpdate', (event: unknown) => {
+    listener(event as AudioRecordingEvent);
+  });
+}
+
 // MARK: - Helper Functions
 
 /**
@@ -371,6 +385,61 @@ export function createTimerActivity(config: {
     ],
     priority: 'normal',
   };
+}
+
+/**
+ * 오디오 녹음 Activity 생성 헬퍼
+ * @param config 기본 설정
+ * @returns Live Activity 설정
+ */
+export function createAudioRecordingActivity(config: {
+  id: string;
+  title: string;
+  duration: number;
+  status: string;
+  quality?: string;
+  audioLevel?: number;
+}): LiveActivityConfig {
+  return {
+    id: config.id,
+    type: 'audioRecording',
+    title: config.title,
+    content: {
+      status: config.status,
+      estimatedTime: Math.floor(config.duration / 60), // 분 단위로 변환
+      customData: {
+        duration: config.duration,
+        quality: config.quality || 'medium',
+        audioLevel: config.audioLevel || 0,
+        formattedDuration: formatDuration(config.duration),
+      },
+    },
+    actions: [
+      {
+        id: config.status === 'recording' ? 'pause' : 'resume',
+        title: config.status === 'recording' ? '일시정지' : '재개',
+        icon: config.status === 'recording' ? 'pause.circle' : 'play.circle',
+      },
+      {
+        id: 'stop',
+        title: '녹음 종료',
+        destructive: true,
+        icon: 'stop.circle',
+      },
+    ],
+    priority: 'high',
+  };
+}
+
+/**
+ * 시간을 MM:SS 형식으로 포맷팅
+ * @param seconds 초 단위 시간
+ * @returns 포맷된 시간 문자열
+ */
+function formatDuration(seconds: number): string {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 }
 
 // MARK: - Legacy Support (Backward Compatibility)

@@ -1,11 +1,14 @@
 import {
   type ActivityUpdateEvent,
+  type AudioRecordingEvent,
   type ErrorEvent,
   type LiveActivityInstance,
   type UserActionEvent,
   addActivityUpdateListener,
+  addAudioRecordingListener,
   addErrorListener,
   addUserActionListener,
+  createAudioRecordingActivity,
   createFoodDeliveryActivity,
   createRideshareActivity,
   createTimerActivity,
@@ -34,6 +37,10 @@ export default function App() {
   const [activeActivities, setActiveActivities] = useState<LiveActivityInstance[]>([]);
   const [status, setStatus] = useState<string>('');
   const [estimatedTime, setEstimatedTime] = useState<string>('25');
+  const [isRecording, setIsRecording] = useState<boolean>(false);
+  const [recordingDuration, setRecordingDuration] = useState<number>(0);
+  const [currentRecordingId, setCurrentRecordingId] = useState<string>('');
+  const [audioLevel, setAudioLevel] = useState<number>(0);
 
   // Event Listeners
   useEffect(() => {
@@ -55,10 +62,54 @@ export default function App() {
       Alert.alert('Error', event.message);
     });
 
+    const audioSubscription = addAudioRecordingListener((event: AudioRecordingEvent) => {
+      console.log('Audio Recording Event:', event);
+      
+      switch (event.type) {
+        case 'started':
+          setIsRecording(true);
+          setCurrentRecordingId(event.sessionId);
+          Alert.alert('Recording Started', '녹음이 시작되었습니다!');
+          break;
+        case 'paused':
+          setIsRecording(false);
+          Alert.alert('Recording Paused', '녹음이 일시정지되었습니다.');
+          break;
+        case 'resumed':
+          setIsRecording(true);
+          Alert.alert('Recording Resumed', '녹음이 재개되었습니다.');
+          break;
+        case 'stopped':
+        case 'completed':
+          setIsRecording(false);
+          setCurrentRecordingId('');
+          setRecordingDuration(0);
+          if (event.fileInfo) {
+            Alert.alert(
+              'Recording Completed', 
+              `녹음 완료!\n파일: ${event.fileInfo.uri}\n크기: ${(event.fileInfo.size / 1024 / 1024).toFixed(2)}MB\n시간: ${Math.floor(event.fileInfo.duration / 60)}:${(event.fileInfo.duration % 60).toFixed(0).padStart(2, '0')}`
+            );
+          }
+          break;
+        case 'error':
+          setIsRecording(false);
+          setCurrentRecordingId('');
+          Alert.alert('Recording Error', event.error || '녹음 중 오류가 발생했습니다.');
+          break;
+        case 'audioLevelUpdate':
+          setRecordingDuration(event.duration);
+          if (event.audioLevel !== undefined) {
+            setAudioLevel(event.audioLevel);
+          }
+          break;
+      }
+    });
+
     return () => {
       updateSubscription.remove();
       actionSubscription.remove();
       errorSubscription.remove();
+      audioSubscription.remove();
     };
   }, []);
 
@@ -199,6 +250,58 @@ export default function App() {
     }
   };
 
+  const handleStartAudioRecording = async () => {
+    try {
+      const sessionId = `audio-recording-${Date.now()}`;
+      const config = createAudioRecordingActivity({
+        id: sessionId,
+        title: '회의 녹음',
+        duration: 0,
+        status: 'recording',
+        quality: 'high',
+        audioLevel: 0,
+      });
+
+      const activity = await startActivity(config);
+      console.log('Audio recording activity started:', activity);
+      setCurrentRecordingId(sessionId);
+      refreshActiveActivities();
+    } catch (error) {
+      console.error('Failed to start audio recording:', error);
+      Alert.alert('Error', `Failed to start recording: ${error}`);
+    }
+  };
+
+  const handleStopAudioRecording = async () => {
+    if (currentRecordingId) {
+      try {
+        const success = await endActivity(`audio-recording-${currentRecordingId}`, {
+          finalContent: {
+            status: '완료',
+            message: '녹음이 완료되었습니다!',
+          },
+          dismissalPolicy: 'default',
+        });
+
+        if (success) {
+          setIsRecording(false);
+          setCurrentRecordingId('');
+          setRecordingDuration(0);
+          refreshActiveActivities();
+        }
+      } catch (error) {
+        console.error('Failed to stop recording:', error);
+        Alert.alert('Error', `Failed to stop recording: ${error}`);
+      }
+    }
+  };
+
+  const formatRecordingTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.container}>
@@ -243,6 +346,36 @@ export default function App() {
           <View style={styles.buttonContainer}>
             <Button title="💪 운동" onPress={handleStartWorkout} disabled={!isSupported} />
             <Button title="⏰ 타이머" onPress={handleStartTimer} disabled={!isSupported} />
+          </View>
+        </Group>
+
+        <Group name="🎙️ 오디오 녹음">
+          {isRecording && (
+            <View style={styles.recordingInfo}>
+              <Text style={styles.recordingStatus}>🔴 녹음 중</Text>
+              <Text style={styles.recordingTime}>{formatRecordingTime(recordingDuration)}</Text>
+              <View style={styles.audioLevelContainer}>
+                <Text style={styles.audioLevelLabel}>음성 레벨:</Text>
+                <View style={styles.audioLevelBar}>
+                  <View 
+                    style={[
+                      styles.audioLevelFill, 
+                      { width: `${audioLevel * 100}%` }
+                    ]} 
+                  />
+                </View>
+                <Text style={styles.audioLevelValue}>{Math.round(audioLevel * 100)}%</Text>
+              </View>
+            </View>
+          )}
+          
+          <View style={styles.buttonContainer}>
+            <Button
+              title={isRecording ? "🛑 녹음 중지" : "🎙️ 녹음 시작"}
+              onPress={isRecording ? handleStopAudioRecording : handleStartAudioRecording}
+              disabled={!isSupported}
+              color={isRecording ? "#ff6b6b" : "#4CAF50"}
+            />
           </View>
         </Group>
 
@@ -394,5 +527,57 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     lineHeight: 24,
+  },
+  recordingInfo: {
+    backgroundColor: '#fff5f5',
+    borderRadius: 8,
+    padding: 15,
+    marginBottom: 15,
+    borderLeftWidth: 4,
+    borderLeftColor: '#ff6b6b',
+  },
+  recordingStatus: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#d63031',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  recordingTime: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2d3436',
+    textAlign: 'center',
+    marginBottom: 15,
+    fontFamily: 'monospace',
+  },
+  audioLevelContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  audioLevelLabel: {
+    fontSize: 14,
+    color: '#636e72',
+    marginRight: 8,
+  },
+  audioLevelBar: {
+    flex: 1,
+    height: 8,
+    backgroundColor: '#ddd',
+    borderRadius: 4,
+    marginHorizontal: 8,
+    overflow: 'hidden',
+  },
+  audioLevelFill: {
+    height: '100%',
+    backgroundColor: '#00b894',
+    borderRadius: 4,
+  },
+  audioLevelValue: {
+    fontSize: 12,
+    color: '#636e72',
+    minWidth: 35,
+    textAlign: 'right',
   },
 });

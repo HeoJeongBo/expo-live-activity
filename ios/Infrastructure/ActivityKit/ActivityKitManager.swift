@@ -48,6 +48,8 @@ public final class ActivityKitManager: ActivityKitManagerProtocol {
                 return await startWorkoutActivity(config)
             case .timer:
                 return await startTimerActivity(config)
+            case .audioRecording:
+                return await startAudioRecordingActivity(config)
             case .custom:
                 return await startCustomActivity(config)
             }
@@ -76,6 +78,9 @@ public final class ActivityKitManager: ActivityKitManagerProtocol {
                 } else if let timerActivity = activity as? Activity<TimerAttributes> {
                     let contentState = self.createTimerContentState(from: content)
                     await timerActivity.update(using: contentState)
+                } else if let audioActivity = activity as? Activity<AudioRecordingAttributes> {
+                    let contentState = self.createAudioRecordingContentState(from: content)
+                    await audioActivity.update(using: contentState)
                 }
                 
                 return .success(())
@@ -112,6 +117,9 @@ public final class ActivityKitManager: ActivityKitManagerProtocol {
                     } else if let timerActivity = activity as? Activity<TimerAttributes> {
                         let finalState = self.createTimerContentState(from: finalContent)
                         await timerActivity.end(using: finalState, dismissalPolicy: policy)
+                    } else if let audioActivity = activity as? Activity<AudioRecordingAttributes> {
+                        let finalState = self.createAudioRecordingContentState(from: finalContent)
+                        await audioActivity.end(using: finalState, dismissalPolicy: policy)
                     }
                 } else {
                     // End without final content
@@ -123,6 +131,8 @@ public final class ActivityKitManager: ActivityKitManagerProtocol {
                         await workoutActivity.end(dismissalPolicy: policy)
                     } else if let timerActivity = activity as? Activity<TimerAttributes> {
                         await timerActivity.end(dismissalPolicy: policy)
+                    } else if let audioActivity = activity as? Activity<AudioRecordingAttributes> {
+                        await audioActivity.end(dismissalPolicy: policy)
                     }
                 }
                 
@@ -245,6 +255,32 @@ public final class ActivityKitManager: ActivityKitManagerProtocol {
         }
     }
     
+    private func startAudioRecordingActivity(_ config: LiveActivityConfig) async -> Result<String, ActivityError> {
+        do {
+            let attributes = AudioRecordingAttributes(
+                sessionId: config.id,
+                title: config.title
+            )
+            
+            let contentState = createAudioRecordingContentState(from: config.content)
+            
+            let activity = try Activity.request(
+                attributes: attributes,
+                content: .init(state: contentState, staleDate: config.expirationDate),
+                pushType: .token
+            )
+            
+            let nativeId = activity.id
+            await activitiesQueue.async(flags: .barrier) {
+                self.activeActivities[nativeId] = activity
+            }
+            
+            return .success(nativeId)
+        } catch {
+            return .failure(.unknown(error.localizedDescription))
+        }
+    }
+    
     private func startCustomActivity(_ config: LiveActivityConfig) async -> Result<String, ActivityError> {
         // Custom Activity는 Generic Activity Attributes 사용
         do {
@@ -310,6 +346,16 @@ public final class ActivityKitManager: ActivityKitManagerProtocol {
         )
     }
     
+    private func createAudioRecordingContentState(from content: ActivityContent) -> AudioRecordingContentState {
+        return AudioRecordingContentState(
+            status: content.status ?? "녹음 중",
+            duration: content.customData["duration"] as? Int ?? 0,
+            quality: content.customData["quality"] as? String ?? "medium",
+            audioLevel: content.customData["audioLevel"] as? Float ?? 0.0,
+            formattedDuration: content.customData["formattedDuration"] as? String ?? "00:00"
+        )
+    }
+    
     private func createCustomContentState(from content: ActivityContent) -> CustomContentState {
         return CustomContentState(
             status: content.status,
@@ -354,6 +400,12 @@ public final class ActivityKitManager: ActivityKitManagerProtocol {
         
         Task {
             for await activityUpdate in Activity<TimerAttributes>.activityUpdates {
+                handleActivityUpdate(activityUpdate)
+            }
+        }
+        
+        Task {
+            for await activityUpdate in Activity<AudioRecordingAttributes>.activityUpdates {
                 handleActivityUpdate(activityUpdate)
             }
         }
@@ -457,6 +509,24 @@ struct TimerContentState: ContentState, Hashable, Codable {
     let remainingTime: Int
     let totalTime: Int
     let isRunning: Bool
+}
+
+/// 오디오 녹음 Activity Attributes
+@available(iOS 16.1, *)
+struct AudioRecordingAttributes: ActivityAttributes {
+    public typealias ContentState = AudioRecordingContentState
+    
+    let sessionId: String
+    let title: String
+}
+
+@available(iOS 16.1, *)
+struct AudioRecordingContentState: ContentState, Hashable, Codable {
+    let status: String
+    let duration: Int // seconds
+    let quality: String
+    let audioLevel: Float
+    let formattedDuration: String
 }
 
 /// 커스텀 Activity Attributes
