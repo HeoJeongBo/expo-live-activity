@@ -96,12 +96,6 @@ export default function App() {
           setCurrentRecordingId('');
           Alert.alert('Recording Error', event.error || '녹음 중 오류가 발생했습니다.');
           break;
-        case 'audioLevelUpdate':
-          setRecordingDuration(event.duration);
-          if (event.audioLevel !== undefined) {
-            setAudioLevel(event.audioLevel);
-          }
-          break;
       }
     });
 
