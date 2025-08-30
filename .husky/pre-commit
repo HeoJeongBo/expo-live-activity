@@ -1,2 +1,10 @@
-# Run TypeScript type checking and code formatting before commit
-bun run pre-commit
+# Pre-commit workflow:
+# 1. Auto-fix lint and formatting issues
+# 2. Run TypeScript type checking, linting, and formatting checks
+echo "🔧 Auto-fixing lint and formatting issues..."
+bun run pre-commit:fix
+
+echo "✅ Running final checks..."
+bun run pre-commit:check
+
+echo "🎉 Pre-commit checks passed!"
