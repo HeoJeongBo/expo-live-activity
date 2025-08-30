@@ -1,6 +1,7 @@
 package expo.modules.liveactivity
 
 import android.content.Context
+import expo.modules.kotlin.AppContext
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
 import expo.modules.kotlin.Promise
@@ -10,9 +11,13 @@ import expo.modules.liveactivity.core.services.LiveActivityService
 import expo.modules.liveactivity.core.models.*
 import expo.modules.liveactivity.core.usecases.*
 import expo.modules.liveactivity.infrastructure.repositories.InMemoryActivityRepository
+import expo.modules.liveactivity.infrastructure.repositories.ActivityRepositoryProtocol
 import expo.modules.liveactivity.infrastructure.notifications.NotificationActivityManager
+import expo.modules.liveactivity.infrastructure.notifications.NotificationActivityManagerProtocol
 import expo.modules.liveactivity.infrastructure.services.AndroidNotificationService
+import expo.modules.liveactivity.infrastructure.services.AndroidNotificationServiceProtocol
 import expo.modules.liveactivity.presentation.events.ActivityEventPublisher
+import expo.modules.liveactivity.presentation.events.ActivityEventPublisherProtocol
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,12 +27,12 @@ class ExpoLiveActivityModule : Module() {
     
     // MARK: - Dependencies (Lazy Initialization)
     
-    private val appContext: Context by lazy { 
-        appContext ?: throw IllegalStateException("App context is null")
+    private val androidContext: Context by lazy {
+        this.appContext.reactContext ?: this.appContext.currentActivity ?: throw IllegalStateException("App context is null")
     }
     
     private val notificationManager: NotificationActivityManagerProtocol by lazy {
-        NotificationActivityManager(appContext)
+        NotificationActivityManager(androidContext)
     }
     
     private val repository: ActivityRepositoryProtocol by lazy {
@@ -43,7 +48,7 @@ class ExpoLiveActivityModule : Module() {
     }
     
     private val notificationService: AndroidNotificationServiceProtocol by lazy {
-        AndroidNotificationService(appContext, notificationManager)
+        AndroidNotificationService(androidContext, notificationManager)
     }
     
     private val liveActivityService: LiveActivityServiceProtocol by lazy {
@@ -201,7 +206,7 @@ class ExpoLiveActivityModule : Module() {
             } catch (e: Exception) {
                 mapOf(
                     "isValid" to false,
-                    "errors" to listOf(mapOf("field" to "config", "message" to e.message))
+                    "errors" to listOf(mapOf("field" to "config", "message" to (e.message ?: "Unknown error")))
                 )
             }
         }
@@ -213,24 +218,6 @@ class ExpoLiveActivityModule : Module() {
         // View integration
         View(ExpoLiveActivityView::class) {
             Events("onLoad", "onActivityAction")
-            
-            Function("updateActivity") { view: ExpoLiveActivityView, config: Map<String, Any> ->
-                try {
-                    val activityConfig = parseActivityConfig(config)
-                    view.updateActivity(activityConfig)
-                } catch (e: Exception) {
-                    android.util.Log.e("ExpoLiveActivityModule", "Failed to update view", e)
-                }
-            }
-            
-            Function("updateContent") { view: ExpoLiveActivityView, content: Map<String, Any> ->
-                try {
-                    val activityContent = parseActivityContent(content)
-                    view.updateContent(activityContent)
-                } catch (e: Exception) {
-                    android.util.Log.e("ExpoLiveActivityModule", "Failed to update view content", e)
-                }
-            }
         }
         
         OnDestroy {
@@ -361,25 +348,26 @@ private fun serializeActivity(activity: LiveActivityInstance): Map<String, Any> 
 }
 
 private fun serializeActivityConfig(config: LiveActivityConfig): Map<String, Any> {
-    return mapOf(
+    val result = mutableMapOf<String, Any>(
         "id" to config.id,
         "type" to config.type.name.lowercase(),
         "title" to config.title,
         "content" to serializeActivityContent(config.content),
         "actions" to config.actions.map { serializeActivityAction(it) },
-        "expirationDate" to (config.expirationDate?.time?.div(1000.0)),
         "priority" to config.priority.name.lowercase()
     )
+    config.expirationDate?.let { result["expirationDate"] = it.time / 1000.0 }
+    return result
 }
 
 private fun serializeActivityContent(content: ActivityContent): Map<String, Any> {
-    return mapOf(
-        "status" to (content.status ?: ""),
-        "progress" to (content.progress ?: 0.0),
-        "message" to (content.message ?: ""),
-        "estimatedTime" to (content.estimatedTime ?: 0),
-        "customData" to content.customData
-    )
+    val result = mutableMapOf<String, Any>()
+    content.status?.let { result["status"] = it }
+    content.progress?.let { result["progress"] = it }
+    content.message?.let { result["message"] = it }
+    content.estimatedTime?.let { result["estimatedTime"] = it }
+    if (content.customData.isNotEmpty()) result["customData"] = content.customData
+    return result
 }
 
 private fun serializeActivityAction(action: ActivityAction): Map<String, Any> {

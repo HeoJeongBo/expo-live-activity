@@ -120,8 +120,8 @@ sealed class Result<out T, out E> {
 
 data class ActivityError(
     val code: String,
-    val message: String,
-    val cause: Throwable? = null
+    override val message: String,
+    override val cause: Throwable? = null
 ) : Exception(message, cause) {
     
     companion object {
