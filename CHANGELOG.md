@@ -1,5 +1,14 @@
 
 
+## [0.5.2](https://github.com/HeoJeongBo/expo-live-activity/compare/v0.5.0...v0.5.2) (2025-08-30)
+
+
+### Bug Fixes
+
+* andoird exec issue ([6484378](https://github.com/HeoJeongBo/expo-live-activity/commit/6484378e979047524f37d6161ba819f61a874fa7))
+* android build issue ([0241e31](https://github.com/HeoJeongBo/expo-live-activity/commit/0241e31c86c5c5044d52ba863129ea69963d2013))
+* improve type safety and fix TypeScript errors in ExpoLiveActivityModule ([b429661](https://github.com/HeoJeongBo/expo-live-activity/commit/b429661b1158f32216a533e701548cfbe0211774))
+
 # [0.5.1](https://github.com/HeoJeongBo/expo-live-activity/compare/v0.5.0...v0.5.1) (2025-01-27)
 
 ### Bug Fixes

@@ -1,6 +1,6 @@
 {
   "name": "@heojeongbo/expo-live-activity",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "My new module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -29,7 +29,12 @@
     "open:ios": "xed example/ios",
     "open:android": "open -a \"Android Studio\" example/android"
   },
-  "keywords": ["react-native", "expo", "expo-live-activity", "ExpoLiveActivity"],
+  "keywords": [
+    "react-native",
+    "expo",
+    "expo-live-activity",
+    "ExpoLiveActivity"
+  ],
   "repository": "https://github.com/HeoJeongBo/expo-live-activity",
   "bugs": {
     "url": "https://github.com/HeoJeongBo/expo-live-activity/issues"
