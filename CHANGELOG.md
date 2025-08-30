@@ -1,5 +1,13 @@
 
 
+# [0.5.1](https://github.com/HeoJeongBo/expo-live-activity/compare/v0.5.0...v0.5.1) (2025-01-27)
+
+### Bug Fixes
+
+* fix TypeScript type errors in ExpoLiveActivityModule ([commit](https://github.com/HeoJeongBo/expo-live-activity/commit/))
+* replace all `any` types with proper types in Android interface ([commit](https://github.com/HeoJeongBo/expo-live-activity/commit/))
+* improve type safety and code consistency
+
 # [0.5.0](https://github.com/HeoJeongBo/expo-live-activity/compare/v0.2.0...v0.5.0) (2025-08-30)
 
 
