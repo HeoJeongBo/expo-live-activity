@@ -1,6 +1,6 @@
+import { endActivity, isSupported, startActivity, updateActivity } from 'expo-live-activity';
 import React, { useState } from 'react';
-import { View, Text, Button, StyleSheet, Alert, TextInput } from 'react-native';
-import { startActivity, updateActivity, endActivity, isSupported } from 'expo-live-activity';
+import { Alert, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { LiveActivityConfig } from './LiveActivityTypes';
 
 export default function WidgetExample() {
@@ -97,7 +97,7 @@ export default function WidgetExample() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Widget Live Activity Demo</Text>
-      
+
       <Text style={styles.supportText}>
         Live Activity Support: {isSupported ? '✅ Supported' : '❌ Not Supported'}
       </Text>
@@ -156,9 +156,7 @@ export default function WidgetExample() {
 
       {activeActivityId && (
         <View style={styles.statusContainer}>
-          <Text style={styles.statusText}>
-            Active Activity ID: {activeActivityId}
-          </Text>
+          <Text style={styles.statusText}>Active Activity ID: {activeActivityId}</Text>
         </View>
       )}
     </View>

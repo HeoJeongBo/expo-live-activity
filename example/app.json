@@ -17,14 +17,10 @@
       "bundleIdentifier": "expo.modules.liveactivity.example",
       "entitlements": {
         "com.apple.developer.ActivityKit": true,
-        "com.apple.security.application-groups": [
-          "group.expo.modules.liveactivity.example"
-        ]
+        "com.apple.security.application-groups": ["group.expo.modules.liveactivity.example"]
       }
     },
-    "plugins": [
-      "@bacons/apple-targets"
-    ],
+    "plugins": ["@bacons/apple-targets"],
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
