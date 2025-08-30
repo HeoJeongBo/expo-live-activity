@@ -307,7 +307,7 @@ public final class AudioRecordingManager: NSObject, AudioRecordingServiceProtoco
         
         let config = LiveActivityConfig(
             id: "audio-recording-\(session.sessionId)",
-            type: .audioRecording,
+            type: .custom,
             title: "🎙️ \(session.title)",
             content: ActivityContent(
                 status: "녹음 중",
@@ -321,7 +321,7 @@ public final class AudioRecordingManager: NSObject, AudioRecordingServiceProtoco
             ),
             actions: [
                 ActivityAction(id: "pause", title: "일시정지", icon: "pause.circle"),
-                ActivityAction(id: "stop", title: "중지", icon: "stop.circle", destructive: true)
+                ActivityAction(id: "stop", title: "중지", icon: "stop.circle", isDestructive: true)
             ],
             priority: .high
         )

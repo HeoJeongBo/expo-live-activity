@@ -81,8 +81,8 @@ public class ExpoLiveActivityModule: Module {
         
         // Constants
         Constants([
-            "isSupported": activityKitManager.isLiveActivitySupported(),
-            "isDynamicIslandSupported": dynamicIslandService.isDynamicIslandSupported()
+            "isSupported": self.activityKitManager.isLiveActivitySupported(),
+            "isDynamicIslandSupported": self.dynamicIslandService.isDynamicIslandSupported()
         ])
         
         // Events

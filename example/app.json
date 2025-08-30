@@ -14,8 +14,17 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "expo.modules.liveactivity.example"
+      "bundleIdentifier": "expo.modules.liveactivity.example",
+      "entitlements": {
+        "com.apple.developer.ActivityKit": true,
+        "com.apple.security.application-groups": [
+          "group.expo.modules.liveactivity.example"
+        ]
+      }
     },
+    "plugins": [
+      "@bacons/apple-targets"
+    ],
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
