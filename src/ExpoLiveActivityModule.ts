@@ -2,6 +2,7 @@ import { NativeModule, requireNativeModule } from 'expo';
 
 import type {
   ActivityContent,
+  ActivityEndRequest,
   DynamicIslandContent,
   ExpoLiveActivityModuleEvents,
   LiveActivityConfig,
@@ -15,16 +16,16 @@ declare class ExpoLiveActivityModule extends NativeModule<ExpoLiveActivityModule
   isSupported: boolean;
   isDynamicIslandSupported: boolean;
 
+  // Event Listeners
+  addListener<EventName extends keyof ExpoLiveActivityModuleEvents>(
+    eventName: EventName,
+    listener: ExpoLiveActivityModuleEvents[EventName]
+  ): { remove: () => void };
+
   // Live Activity Management
   startActivity(config: LiveActivityConfig): Promise<LiveActivityInstance>;
   updateActivity(activityId: string, content: ActivityContent): Promise<boolean>;
-  endActivity(
-    activityId: string,
-    options?: {
-      finalContent?: ActivityContent;
-      dismissalPolicy?: string;
-    }
-  ): Promise<boolean>;
+  endActivity(activityId: string, options?: ActivityEndRequest): Promise<boolean>;
   getActiveActivities(): Promise<LiveActivityInstance[]>;
   getActivity(activityId: string): Promise<LiveActivityInstance | null>;
 

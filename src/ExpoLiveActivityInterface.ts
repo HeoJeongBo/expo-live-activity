@@ -74,10 +74,7 @@ export async function updateActivity(
  */
 export async function endActivity(
   activityId: string,
-  options?: {
-    finalContent?: ActivityContent;
-    dismissalPolicy?: 'immediate' | 'default' | 'after';
-  }
+  options?: ActivityEndRequest
 ): Promise<boolean> {
   return await ExpoLiveActivityModule.endActivity(activityId, options);
 }
@@ -186,9 +183,14 @@ export function validateActivityConfig(config: LiveActivityConfig): ValidationRe
 export function addActivityUpdateListener(
   listener: (event: ActivityUpdateEvent) => void
 ): Subscription {
-  return ExpoLiveActivityModule.addListener('onActivityUpdate', (event: unknown) => {
-    listener(event as ActivityUpdateEvent);
-  });
+  if (ExpoLiveActivityModule.addListener) {
+    return ExpoLiveActivityModule.addListener('onActivityUpdate', (event: unknown) => {
+      listener(event as ActivityUpdateEvent);
+    });
+  }
+  // Fallback for platforms without addListener support
+  console.warn('addListener not supported on this platform');
+  return { remove: () => {} };
 }
 
 /**
@@ -197,9 +199,14 @@ export function addActivityUpdateListener(
  * @returns 구독 객체
  */
 export function addUserActionListener(listener: (event: UserActionEvent) => void): Subscription {
-  return ExpoLiveActivityModule.addListener('onUserAction', (event: unknown) => {
-    listener(event as UserActionEvent);
-  });
+  if (ExpoLiveActivityModule.addListener) {
+    return ExpoLiveActivityModule.addListener('onUserAction', (event: unknown) => {
+      listener(event as UserActionEvent);
+    });
+  }
+  // Fallback for platforms without addListener support
+  console.warn('addListener not supported on this platform');
+  return { remove: () => {} };
 }
 
 /**
@@ -208,9 +215,14 @@ export function addUserActionListener(listener: (event: UserActionEvent) => void
  * @returns 구독 객체
  */
 export function addActivityEndListener(listener: (event: ActivityEndEvent) => void): Subscription {
-  return ExpoLiveActivityModule.addListener('onActivityEnd', (event: unknown) => {
-    listener(event as ActivityEndEvent);
-  });
+  if (ExpoLiveActivityModule.addListener) {
+    return ExpoLiveActivityModule.addListener('onActivityEnd', (event: unknown) => {
+      listener(event as ActivityEndEvent);
+    });
+  }
+  // Fallback for platforms without addListener support
+  console.warn('addListener not supported on this platform');
+  return { remove: () => {} };
 }
 
 /**
@@ -219,9 +231,14 @@ export function addActivityEndListener(listener: (event: ActivityEndEvent) => vo
  * @returns 구독 객체
  */
 export function addErrorListener(listener: (event: ErrorEvent) => void): Subscription {
-  return ExpoLiveActivityModule.addListener('onError', (event: unknown) => {
-    listener(event as ErrorEvent);
-  });
+  if (ExpoLiveActivityModule.addListener) {
+    return ExpoLiveActivityModule.addListener('onError', (event: unknown) => {
+      listener(event as ErrorEvent);
+    });
+  }
+  // Fallback for platforms without addListener support
+  console.warn('addListener not supported on this platform');
+  return { remove: () => {} };
 }
 
 /**
@@ -232,9 +249,14 @@ export function addErrorListener(listener: (event: ErrorEvent) => void): Subscri
 export function addAudioRecordingListener(
   listener: (event: AudioRecordingEvent) => void
 ): Subscription {
-  return ExpoLiveActivityModule.addListener('onAudioRecordingUpdate', (event: unknown) => {
-    listener(event as AudioRecordingEvent);
-  });
+  if (ExpoLiveActivityModule.addListener) {
+    return ExpoLiveActivityModule.addListener('onAudioRecordingUpdate', (event: unknown) => {
+      listener(event as AudioRecordingEvent);
+    });
+  }
+  // Fallback for platforms without addListener support
+  console.warn('addListener not supported on this platform');
+  return { remove: () => {} };
 }
 
 // MARK: - Helper Functions

@@ -103,8 +103,16 @@ class ExpoLiveActivityModule : Module() {
             "onActivityUpdate",
             "onUserAction", 
             "onActivityEnd",
-            "onError"
+            "onError",
+            "onAudioRecordingUpdate"
         )
+        
+        // Event Listener Management
+        AsyncFunction("addListener") { eventName: String, promise: Promise ->
+            // This is a no-op on Android since events are sent automatically
+            // The listener management is handled by the React Native event system
+            promise.resolve(mapOf("remove" to { /* No-op for Android */ }))
+        }
         
         // MARK: - Live Activity Management Functions
         

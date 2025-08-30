@@ -90,8 +90,16 @@ public class ExpoLiveActivityModule: Module {
             "onActivityUpdate",
             "onUserAction", 
             "onActivityEnd",
-            "onError"
+            "onError",
+            "onAudioRecordingUpdate"
         ])
+        
+        // Event Listener Management
+        AsyncFunction("addListener") { (eventName: String) -> [String: Any] in
+            // This is a no-op on iOS since events are sent automatically
+            // The listener management is handled by the React Native event system
+            return ["remove": { /* No-op for iOS */ }]
+        }
         
         // MARK: - Live Activity Management Functions
         
