@@ -1,5 +1,7 @@
 
 
+## [0.6.4](https://github.com/HeoJeongBo/expo-live-activity/compare/v0.6.3...v0.6.4) (2025-08-31)
+
 ## [0.6.3](https://github.com/HeoJeongBo/expo-live-activity/compare/v0.6.2...v0.6.3) (2025-08-31)
 
 
