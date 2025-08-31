@@ -1,4 +1,12 @@
 
+
+## [0.6.3](https://github.com/HeoJeongBo/expo-live-activity/compare/v0.6.2...v0.6.3) (2025-08-31)
+
+
+### Features
+
+* add automated release process enforcement ([e8acaaf](https://github.com/HeoJeongBo/expo-live-activity/commit/e8acaafd31b30f4da65a9661fe0e6409d28cf22e))
+
 # [0.6.0](https://github.com/HeoJeongBo/expo-live-activity/compare/v0.5.2...v0.6.0) (2025-08-31)
 
 ### Features
