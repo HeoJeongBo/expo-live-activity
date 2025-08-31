@@ -15,6 +15,15 @@
     "assetBundlePatterns": ["**/*"],
     "plugins": [
       [
+        "@heojeongbo/expo-live-activity",
+        {
+          "developmentTeam": "YOUR_DEVELOPMENT_TEAM_ID",
+          "widgetBundleIdentifier": "com.heojeongbo.expo-live-activity-example.LiveActivityWidget",
+          "widgetDisplayName": "LiveActivityWidget",
+          "iosDeploymentTarget": "16.1"
+        }
+      ],
+      [
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
