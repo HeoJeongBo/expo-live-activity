@@ -1,6 +1,6 @@
 {
   "name": "@heojeongbo/expo-live-activity-plugin",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "Expo Config Plugin for Live Activity support",
   "main": "build/index.js",
   "types": "build/index.d.ts",

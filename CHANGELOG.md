@@ -1,4 +1,26 @@
 
+# [0.6.0](https://github.com/HeoJeongBo/expo-live-activity/compare/v0.5.2...v0.6.0) (2025-08-31)
+
+### Features
+
+* **Config Plugin**: Add comprehensive Expo Config Plugin for Live Activity setup ([a803aa6](https://github.com/HeoJeongBo/expo-live-activity/commit/a803aa6a5887b8f05a5a2bb05edc25030595f820))
+  - Support for Apple Developer Team ID configuration
+  - Custom Widget Bundle Identifier support
+  - Environment variable integration for sensitive data
+  - Automatic Widget Extension target creation
+  - ActivityKit and WidgetKit framework integration
+
+* **Development Environment**: Enhance development workflow ([a803aa6](https://github.com/HeoJeongBo/expo-live-activity/commit/a803aa6a5887b8f05a5a2bb05edc25030595f820))
+  - Auto-fixing pre-commit hooks to prevent double commits
+  - Environment variable template (.env.example)
+  - Complete example project setup with plugin integration
+
+* **Documentation**: Convert all documentation to English ([a803aa6](https://github.com/HeoJeongBo/expo-live-activity/commit/a803aa6a5887b8f05a5a2bb05edc25030595f820))
+  - Comprehensive Plugin Usage Guide
+  - Step-by-step configuration instructions
+  - Troubleshooting guides
+
+* **iOS Configuration**: Add iOS-specific Live Activity setup ([296eea9](https://github.com/HeoJeongBo/expo-live-activity/commit/296eea972d34e7931b7e47bf945f7db3ce035ede))
 
 ## [0.5.2](https://github.com/HeoJeongBo/expo-live-activity/compare/v0.5.0...v0.5.2) (2025-08-30)
 
