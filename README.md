@@ -211,6 +211,46 @@ yarn add @heojeongbo/expo-live-activity
 bun add @heojeongbo/expo-live-activity
 ```
 
+### Required Permissions Setup
+
+**⚠️ IMPORTANT**: This module requires specific permissions to work properly. You need to configure them separately:
+
+#### iOS Permissions
+- **Notifications**: iOS Live Activities automatically handle notification permissions through ActivityKit
+- **Microphone** (for Audio Recording): If using audio recording activities, request microphone permission using `expo-av`
+
+#### Android Permissions  
+- **Notifications**: Required for displaying ongoing notifications (Android's Live Activity alternative)
+- **Microphone** (for Audio Recording): Required for audio recording activities
+
+```bash
+# Install required permission modules
+npm install expo-notifications expo-av
+
+# For audio recording activities only
+npm install expo-permissions
+```
+
+```typescript
+// Request permissions before using Live Activities
+import * as Notifications from 'expo-notifications';
+import { Audio } from 'expo-av';
+
+// Request notification permission (required for all activities)
+const { status } = await Notifications.requestPermissionsAsync();
+if (status !== 'granted') {
+  console.warn('Notification permission denied');
+  return;
+}
+
+// Request microphone permission (only for audio recording activities)
+const audioPermission = await Audio.requestPermissionsAsync();
+if (audioPermission.status !== 'granted') {
+  console.warn('Microphone permission denied');
+  // Audio recording activities will not work
+}
+```
+
 ### Basic Setup
 
 ```typescript
@@ -231,28 +271,43 @@ import {
 #### 1. Starting an Activity
 
 ```typescript
-// Start food delivery Live Activity
-const activity = await startActivity({
-  id: 'food-delivery-123',
-  type: 'foodDelivery',
-  title: 'Delicious Restaurant Order',
-  content: {
-    status: 'Preparing',
-    estimatedTime: 25,
-    message: 'Your order has been received',
-    customData: {
-      restaurant: 'Delicious Restaurant',
-      orderItems: ['Kimchi Stew', 'Rice']
-    }
-  },
-  actions: [
-    { id: 'cancel', title: 'Cancel Order', destructive: true },
-    { id: 'call', title: 'Call Restaurant', icon: 'phone' }
-  ],
-  priority: 'high'
-});
+// ⚠️ Make sure permissions are granted before starting activities
+import * as Notifications from 'expo-notifications';
 
-console.log('Activity started:', activity.id);
+async function startFoodDeliveryActivity() {
+  // Check notification permission first
+  const { status } = await Notifications.getPermissionsAsync();
+  if (status !== 'granted') {
+    const { status: newStatus } = await Notifications.requestPermissionsAsync();
+    if (newStatus !== 'granted') {
+      console.warn('Cannot start Live Activity without notification permission');
+      return;
+    }
+  }
+  
+  // Start food delivery Live Activity
+  const activity = await startActivity({
+    id: 'food-delivery-123',
+    type: 'foodDelivery',
+    title: 'Delicious Restaurant Order',
+    content: {
+      status: 'Preparing',
+      estimatedTime: 25,
+      message: 'Your order has been received',
+      customData: {
+        restaurant: 'Delicious Restaurant',
+        orderItems: ['Kimchi Stew', 'Rice']
+      }
+    },
+    actions: [
+      { id: 'cancel', title: 'Cancel Order', destructive: true },
+      { id: 'call', title: 'Call Restaurant', icon: 'phone' }
+    ],
+    priority: 'high'
+  });
+
+  console.log('Activity started:', activity.id);
+}
 ```
 
 #### 2. Real-time Activity Updates
@@ -473,45 +528,109 @@ await requestRemoteUpdate('food-delivery-123', {
 }, 'target-device-push-token');
 ```
 
-#### Android-only Features
+#### Permission Management Best Practices
 
 ```typescript
-import { 
-  checkNotificationPermission,
-  requestNotificationPermission,
-  createAndroidOptimizedConfig,
-  getPlatformLimitations
-} from '@heojeongbo/expo-live-activity/android';
+// Recommended: Create a permission helper
+import * as Notifications from 'expo-notifications';
+import { Audio } from 'expo-av';
+import { Platform } from 'react-native';
 
-// 1. Check and request notification permission (Android 13+)
-const hasPermission = await checkNotificationPermission();
-if (!hasPermission) {
-  const granted = await requestNotificationPermission();
-  if (!granted) {
-    console.warn('Notification permission was denied');
-    return;
+class LiveActivityPermissionManager {
+  
+  static async checkAndRequestNotificationPermission(): Promise<boolean> {
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status === 'granted') return true;
+    
+    const { status: newStatus } = await Notifications.requestPermissionsAsync();
+    return newStatus === 'granted';
+  }
+  
+  static async checkAndRequestAudioPermission(): Promise<boolean> {
+    try {
+      const { status } = await Audio.getPermissionsAsync();
+      if (status === 'granted') return true;
+      
+      const { status: newStatus } = await Audio.requestPermissionsAsync();
+      return newStatus === 'granted';
+    } catch (error) {
+      console.warn('Audio permission not available:', error);
+      return false;
+    }
+  }
+  
+  static async checkRequiredPermissions(activityType: string): Promise<{
+    canStart: boolean;
+    missingPermissions: string[];
+  }> {
+    const missingPermissions: string[] = [];
+    
+    // Check notification permission (required for all activities)
+    const hasNotifications = await this.checkAndRequestNotificationPermission();
+    if (!hasNotifications) {
+      missingPermissions.push('Notifications');
+    }
+    
+    // Check microphone permission (only for audio recording)
+    if (activityType === 'audioRecording') {
+      const hasAudio = await this.checkAndRequestAudioPermission();
+      if (!hasAudio) {
+        missingPermissions.push('Microphone');
+      }
+    }
+    
+    return {
+      canStart: missingPermissions.length === 0,
+      missingPermissions
+    };
   }
 }
 
-// 2. Create Android-optimized configuration
-const optimizedConfig = createAndroidOptimizedConfig({
-  id: 'delivery-123',
-  type: 'foodDelivery',
-  title: 'Very long food delivery order title',
-  actions: [
-    { id: 'action1', title: 'Action 1' },
-    { id: 'action2', title: 'Action 2' },
-    { id: 'action3', title: 'Action 3' }, // Automatically removed (max 2)
-  ],
-  content: {
-    message: 'Very long message content. This message will be automatically truncated to fit Android notification space.'
+// Usage example
+async function startActivityWithPermissionCheck(config: LiveActivityConfig) {
+  const permissionCheck = await LiveActivityPermissionManager
+    .checkRequiredPermissions(config.type);
+  
+  if (!permissionCheck.canStart) {
+    console.warn('Missing permissions:', permissionCheck.missingPermissions);
+    // Show user-friendly permission request dialog
+    return;
   }
-});
+  
+  // Permissions granted, start the activity
+  const activity = await startActivity(config);
+  return activity;
+}
+```
 
-// 3. Check platform limitations
-const limitations = getPlatformLimitations();
-console.log('Android limitations:', limitations);
-// Output: { maxActions: 2, supportsDynamicIsland: false, ... }
+#### Android Notification Limitations
+
+```typescript
+// Android has specific limitations you should be aware of:
+
+const androidLimitations = {
+  maxActions: 2,              // Maximum 2 action buttons
+  supportsDynamicIsland: false, // No Dynamic Island support
+  requiresPermission: true,    // Notification permission required (Android 13+)
+  persistentOnly: true        // Uses ongoing notifications
+};
+
+// Example: Handle Android limitations gracefully
+function createCrossPlatformConfig(config: LiveActivityConfig) {
+  if (Platform.OS === 'android') {
+    // Limit actions to 2 for Android
+    const actions = config.actions?.slice(0, 2) || [];
+    
+    return {
+      ...config,
+      actions,
+      // Remove iOS-specific features
+      dynamicIsland: undefined
+    };
+  }
+  
+  return config; // iOS supports all features
+}
 ```
 
 #### Cross-platform Compatibility Check
@@ -634,21 +753,92 @@ Since Android doesn't have the same functionality as iOS's ActivityKit, we combi
 | **Timer** | ⏰ MM:SS format + progress |
 | **Audio Recording** | 🎙️ Ready → 🔴 Recording → ✅ Complete |
 
-#### ⚙️ Permissions and Configuration
+#### ⚙️ Required Permissions Configuration
 
-```xml
-<!-- AndroidManifest.xml -->
-<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+**⚠️ IMPORTANT**: These permissions are managed by Expo's permission modules, not by this Live Activity module directly.
 
-<application>
-    <receiver android:name=".NotificationActionReceiver" 
-              android:exported="false">
-        <intent-filter>
-            <action android:name="expo.liveactivity.ACTION_BUTTON_CLICKED" />
-        </intent-filter>
-    </receiver>
-</application>
+```json
+// app.json - Expo configuration
+{
+  "expo": {
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./local/assets/notification-icon.png",
+          "color": "#ffffff",
+          "defaultChannel": "default"
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "This app uses the microphone to record audio for Live Activities."
+        }
+      ]
+    ],
+    "ios": {
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app uses the microphone for audio recording Live Activities."
+      }
+    },
+    "android": {
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.RECORD_AUDIO"
+      ]
+    }
+  }
+}
+```
+
+```typescript
+// ⚠️ Permission Check Pattern - Use this before starting any Live Activity
+
+import * as Notifications from 'expo-notifications';
+import { Audio } from 'expo-av';
+
+async function ensurePermissionsForLiveActivity(activityType: string): Promise<boolean> {
+  // 1. Always check notification permission first
+  const notificationStatus = await Notifications.getPermissionsAsync();
+  if (notificationStatus.status !== 'granted') {
+    const { status } = await Notifications.requestPermissionsAsync();
+    if (status !== 'granted') {
+      console.warn('Live Activities require notification permission');
+      return false;
+    }
+  }
+  
+  // 2. Check microphone permission for audio recording activities
+  if (activityType === 'audioRecording') {
+    try {
+      const audioStatus = await Audio.getPermissionsAsync();
+      if (audioStatus.status !== 'granted') {
+        const { status } = await Audio.requestPermissionsAsync();
+        if (status !== 'granted') {
+          console.warn('Audio recording activities require microphone permission');
+          return false;
+        }
+      }
+    } catch (error) {
+      console.warn('Could not check audio permission:', error);
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+// Usage
+async function startActivitySafely(config: LiveActivityConfig) {
+  const hasPermissions = await ensurePermissionsForLiveActivity(config.type);
+  if (!hasPermissions) {
+    // Show user a helpful message about required permissions
+    throw new Error('Required permissions not granted');
+  }
+  
+  return await startActivity(config);
+}
 ```
 
 #### 💡 Android vs iOS User Experience
@@ -1188,6 +1378,40 @@ This module is a **complete cross-platform Live Activity solution ready for prod
 - [ ] **A/B Testing**: Live Activity UI/UX experimentation support
 - [ ] **Backend SDK**: SDK for managing Live Activity from server
 
+## 📋 Permission Requirements Summary
+
+### Required Dependencies
+
+```bash
+# Core Live Activity module
+npm install @heojeongbo/expo-live-activity
+
+# Required for all Live Activities (notification permission)
+npm install expo-notifications
+
+# Required for audio recording Live Activities only
+npm install expo-av
+```
+
+### Permission Matrix
+
+| Activity Type | iOS Permissions | Android Permissions |
+|-------------|----------------|-------------------|
+| **Food Delivery** | ✅ Auto (ActivityKit) | ⚠️ Notifications (manual) |
+| **Rideshare** | ✅ Auto (ActivityKit) | ⚠️ Notifications (manual) |
+| **Workout** | ✅ Auto (ActivityKit) | ⚠️ Notifications (manual) |
+| **Timer** | ✅ Auto (ActivityKit) | ⚠️ Notifications (manual) |
+| **Audio Recording** | ⚠️ Microphone (manual) | ⚠️ Notifications + Microphone (manual) |
+
+### Permission Setup Steps
+
+1. **Install required Expo modules** for permissions
+2. **Configure app.json** with permission descriptions
+3. **Request permissions** before starting Live Activities
+4. **Handle permission denials** gracefully in your app
+
+**⚠️ This Live Activity module does NOT handle permissions automatically. You must use expo-notifications and expo-av to manage permissions properly.**
+
 ## 🔧 Tech Stack
 
 This project uses the following tools:
@@ -1195,4 +1419,6 @@ This project uses the following tools:
 - **[Bun](https://bun.sh/)**: Fast JavaScript runtime and package manager
 - **[Biome](https://biomejs.dev/)**: Fast and modern linter/formatter (ESLint + Prettier replacement)
 - **[Expo Modules API](https://docs.expo.dev/modules/)**: Native module development framework
+- **[expo-notifications](https://docs.expo.dev/versions/latest/sdk/notifications/)**: Permission management for notifications
+- **[expo-av](https://docs.expo.dev/versions/latest/sdk/av/)**: Permission management for audio recording
 - **TypeScript**: Static type checking
