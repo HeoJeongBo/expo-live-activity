@@ -1412,6 +1412,16 @@ npm install expo-av
 
 **⚠️ This Live Activity module does NOT handle permissions automatically. You must use expo-notifications and expo-av to manage permissions properly.**
 
+### 📱 Complete Permission Management Example
+
+For a **complete working example** with permission management, see the `example/` folder:
+
+- **[`example/src/utils/PermissionManager.ts`](./example/src/utils/PermissionManager.ts)**: Complete permission management utility
+- **[`example/App.tsx`](./example/App.tsx)**: App with integrated permission checks  
+- **[`example/README.md`](./example/README.md)**: Detailed setup and usage guide
+
+**Copy the `PermissionManager` class from the example to your project for production-ready permission handling.**
+
 ## 🔧 Tech Stack
 
 This project uses the following tools:
