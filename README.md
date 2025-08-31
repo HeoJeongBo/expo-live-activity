@@ -1424,62 +1424,62 @@ For a **complete working example** with permission management, see the `example/
 
 ## 🚨 Release Process Enforcement
 
-**⚠️ 중요: 반드시 release-it을 사용해서 배포하세요!**
+**⚠️ Important: Always use release-it for deployments!**
 
-이 프로젝트는 **일관된 배포 프로세스를 보장**하기 위해 GitHub Actions를 통해 release-it 사용을 강제합니다.
+This project **enforces the use of release-it** through GitHub Actions to ensure a consistent deployment process.
 
-### 올바른 배포 방법:
+### Correct Deployment Method:
 ```bash
-# 패치 버전 릴리스 (0.6.2 → 0.6.3)
+# Patch version release (0.6.2 → 0.6.3)
 bun run release
 
-# 마이너 버전 릴리스 (0.6.2 → 0.7.0)
+# Minor version release (0.6.2 → 0.7.0)
 bun run release:minor
 
-# 메이저 버전 릴리스 (0.6.2 → 1.0.0)
+# Major version release (0.6.2 → 1.0.0)
 bun run release:major
 
-# 드라이 런 (실제 배포 없이 테스트)
+# Dry run (test without actual deployment)
 bun run release:dry
 ```
 
-### Release-it 자동 처리 작업:
-- ✅ **Version Bump**: package.json 버전 자동 업데이트
-- ✅ **Git Tag**: `v${version}` 형식의 Git 태그 자동 생성
-- ✅ **GitHub Release**: GitHub Release 자동 생성
-- ✅ **NPM Publish**: npm 레지스트리에 자동 배포
-- ✅ **CHANGELOG**: 변경사항 자동 문서화
+### Release-it Automated Tasks:
+- ✅ **Version Bump**: Automatically update package.json version
+- ✅ **Git Tag**: Automatically create Git tag in `v${version}` format
+- ✅ **GitHub Release**: Automatically create GitHub Release
+- ✅ **NPM Publish**: Automatically deploy to npm registry
+- ✅ **CHANGELOG**: Automatically document changes
 
-### 🛡️ 자동 검증 시스템:
+### 🛡️ Automated Validation System:
 #### 1. **Release Process Enforcement Workflow**
-- 📋 **Version Change Detection**: package.json 버전 변경 감지
-- 📋 **Commit Message Validation**: `chore: release v${version}` 형식 확인
-- 📋 **Git Tag Verification**: 해당 버전의 Git 태그 존재 확인
-- 🚫 **수동 버전 변경 차단**: 잘못된 배포 프로세스 시 CI 실패
+- 📋 **Version Change Detection**: Detect package.json version changes
+- 📋 **Commit Message Validation**: Verify `chore: release v${version}` format
+- 📋 **Git Tag Verification**: Check existence of corresponding Git tag
+- 🚫 **Block Manual Version Changes**: CI fails on incorrect deployment process
 
 #### 2. **NPM Publish Protection Workflow**
-- 🔍 **Daily Consistency Check**: NPM 버전과 Git 태그 일관성 확인
-- 📊 **Version Mismatch Detection**: 수동 npm publish 감지
-- 📝 **Process Reminder**: 올바른 배포 방법 안내
+- 🔍 **Daily Consistency Check**: Verify NPM version vs Git tag consistency
+- 📊 **Version Mismatch Detection**: Detect manual npm publish attempts
+- 📝 **Process Reminder**: Guide users to proper deployment method
 
-### ❌ 차단되는 잘못된 배포 방식:
+### ❌ Blocked Incorrect Deployment Methods:
 ```bash
-# 🚫 수동 버전 변경 (차단됨)
-# 1. package.json에서 version 직접 수정
+# 🚫 Manual version changes (BLOCKED)
+# 1. Directly edit version in package.json
 # 2. git commit -m "bump version to 0.6.3" 
 # 3. npm publish
 
-# ⚠️ GitHub Actions에서 다음 오류 발생:
+# ⚠️ GitHub Actions will show this error:
 # "Manual version bumps are not allowed. Please use release-it!"
 ```
 
-### 💡 장점:
-- **일관성**: 모든 배포가 동일한 프로세스를 따름
-- **자동화**: 태그, 릴리스, 문서화가 자동으로 처리
-- **안정성**: 실수나 누락을 방지
-- **추적성**: 완전한 릴리스 기록 유지
+### 💡 Benefits:
+- **Consistency**: All deployments follow the same process
+- **Automation**: Tags, releases, and documentation handled automatically
+- **Reliability**: Prevents mistakes and omissions
+- **Traceability**: Maintains complete release history
 
-**다음 배포부터는 `bun run release`만 사용하면 모든 것이 자동으로 처리됩니다!**
+**From now on, just use `bun run release` and everything will be handled automatically!**
 
 ## 🔧 Tech Stack
 
