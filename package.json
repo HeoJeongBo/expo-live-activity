@@ -33,7 +33,11 @@
     "react-native",
     "expo",
     "expo-live-activity",
-    "ExpoLiveActivity"
+    "ExpoLiveActivity",
+    "live-activity",
+    "dynamic-island",
+    "ios",
+    "activitykit"
   ],
   "repository": "https://github.com/HeoJeongBo/expo-live-activity",
   "bugs": {
@@ -54,8 +58,13 @@
   },
   "peerDependencies": {
     "expo": "*",
-    "expo-audio": "*",
     "react": "*",
     "react-native": "*"
+  },
+  "expo": {
+    "ios": {
+      "deploymentTarget": "16.1"
+    },
+    "plugin": "./plugin/build/index.js"
   }
 }

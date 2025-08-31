@@ -1,0 +1,31 @@
+{
+  "name": "@heojeongbo/expo-live-activity-plugin",
+  "version": "0.5.2",
+  "description": "Expo Config Plugin for Live Activity support",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf build"
+  },
+  "keywords": [
+    "expo",
+    "react-native",
+    "ios",
+    "live-activity",
+    "dynamic-island",
+    "config-plugin"
+  ],
+  "author": "heojeongbo",
+  "license": "MIT",
+  "dependencies": {
+    "@expo/config-plugins": "^8.0.0",
+    "@expo/config-types": "^51.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "expo": ">=49.0.0"
+  }
+}
