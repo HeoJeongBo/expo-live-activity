@@ -1422,13 +1422,11 @@ For a **complete working example** with permission management, see the `example/
 
 **Copy the `PermissionManager` class from the example to your project for production-ready permission handling.**
 
-## 🚨 Release Process Enforcement
+## 🚀 Release Process
 
-**⚠️ Important: Always use release-it for deployments!**
+This project uses **release-it** for automated deployments.
 
-This project **enforces the use of release-it** through GitHub Actions to ensure a consistent deployment process.
-
-### Correct Deployment Method:
+### Deployment Commands:
 ```bash
 # Patch version release (0.6.2 → 0.6.3)
 bun run release
@@ -1443,43 +1441,15 @@ bun run release:major
 bun run release:dry
 ```
 
-### Release-it Automated Tasks:
-- ✅ **Version Bump**: Automatically update package.json version
-- ✅ **Git Tag**: Automatically create Git tag in `v${version}` format
-- ✅ **GitHub Release**: Automatically create GitHub Release
-- ✅ **NPM Publish**: Automatically deploy to npm registry
-- ✅ **CHANGELOG**: Automatically document changes
+### What Release-it Does Automatically:
+- ✅ **Version Bump**: Updates package.json version
+- ✅ **Git Tag**: Creates Git tag in `v${version}` format
+- ✅ **GitHub Release**: Creates GitHub Release with notes
+- ✅ **NPM Publish**: Publishes to npm registry
+- ✅ **CHANGELOG**: Updates CHANGELOG.md with changes
+- ✅ **Git Commit**: Creates proper release commit message
 
-### 🛡️ Automated Validation System:
-#### 1. **Release Process Enforcement Workflow**
-- 📋 **Version Change Detection**: Detect package.json version changes
-- 📋 **Commit Message Validation**: Verify `chore: release v${version}` format
-- 📋 **Git Tag Verification**: Check existence of corresponding Git tag
-- 🚫 **Block Manual Version Changes**: CI fails on incorrect deployment process
-
-#### 2. **NPM Publish Protection Workflow**
-- 🔍 **Daily Consistency Check**: Verify NPM version vs Git tag consistency
-- 📊 **Version Mismatch Detection**: Detect manual npm publish attempts
-- 📝 **Process Reminder**: Guide users to proper deployment method
-
-### ❌ Blocked Incorrect Deployment Methods:
-```bash
-# 🚫 Manual version changes (BLOCKED)
-# 1. Directly edit version in package.json
-# 2. git commit -m "bump version to 0.6.3" 
-# 3. npm publish
-
-# ⚠️ GitHub Actions will show this error:
-# "Manual version bumps are not allowed. Please use release-it!"
-```
-
-### 💡 Benefits:
-- **Consistency**: All deployments follow the same process
-- **Automation**: Tags, releases, and documentation handled automatically
-- **Reliability**: Prevents mistakes and omissions
-- **Traceability**: Maintains complete release history
-
-**From now on, just use `bun run release` and everything will be handled automatically!**
+Just run `bun run release` and everything is handled automatically!
 
 ## 🔧 Tech Stack
 
