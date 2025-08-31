@@ -1,8 +1,18 @@
 # Pre-commit workflow:
 # 1. Auto-fix lint and formatting issues
-# 2. Run TypeScript type checking, linting, and formatting checks
+# 2. Auto-add any changes made by linters/formatters
+# 3. Run TypeScript type checking, linting, and formatting checks
+
 echo "🔧 Auto-fixing lint and formatting issues..."
 bun run pre-commit:fix
+
+# Check if any files were modified by the linter/formatter
+if ! git diff --quiet; then
+  echo "📝 Linter made changes, auto-adding them to commit..."
+  git add .
+else
+  echo "📝 No changes made by linter"
+fi
 
 echo "✅ Running final checks..."
 bun run pre-commit:check

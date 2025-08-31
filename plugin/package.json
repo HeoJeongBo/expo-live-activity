@@ -8,14 +8,7 @@
     "build": "tsc",
     "clean": "rm -rf build"
   },
-  "keywords": [
-    "expo",
-    "react-native",
-    "ios",
-    "live-activity",
-    "dynamic-island",
-    "config-plugin"
-  ],
+  "keywords": ["expo", "react-native", "ios", "live-activity", "dynamic-island", "config-plugin"],
   "author": "heojeongbo",
   "license": "MIT",
   "dependencies": {

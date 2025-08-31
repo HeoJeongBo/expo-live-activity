@@ -15,7 +15,7 @@ export interface LiveActivityPluginProps {
 
   /**
    * Widget Extension Display Name
-   * @default "LiveActivityWidget" 
+   * @default "LiveActivityWidget"
    */
   widgetDisplayName?: string;
 

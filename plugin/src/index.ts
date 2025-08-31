@@ -1,8 +1,8 @@
 import {
   type ConfigPlugin,
+  type InfoPlist,
   withInfoPlist,
   withXcodeProject,
-  type InfoPlist,
 } from '@expo/config-plugins';
 import { LiveActivityPluginProps } from './types';
 
@@ -43,7 +43,9 @@ export const withLiveActivity: ConfigPlugin<LiveActivityPluginProps> = (
     try {
       // Check if widget target already exists
       const targets = xcodeProject.getTargets();
-      const widgetTargetExists = targets.some((target: { name: string }) => target.name === widgetDisplayName);
+      const widgetTargetExists = targets.some(
+        (target: { name: string }) => target.name === widgetDisplayName
+      );
 
       if (!widgetTargetExists) {
         // Add Widget Extension target configuration
